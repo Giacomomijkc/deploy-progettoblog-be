@@ -1,0 +1,32 @@
+GET http://localhost:5050/authors/
+
+#####
+
+POST http://localhost:5050/authors/create HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "Giacomo",
+    "surname": "Cognome",
+    "email": "nuova@mail.it",
+    "dateOfBirth": "1991/05/10",
+    "avatar": "http://miaimmagine.jpg"
+}
+
+#####
+GET http://localhost:5050/authors/64c3e1a8f918186ba12cc3b5
+
+//sistemare la richiesta dei post dopo il referencing
+#####
+GET http://localhost:5050/authors/64c3e1a8f918186ba12cc3b5/posts
+
+#####
+PATCH http://localhost:5050/authors/64bed5613120be802dc3c34d HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "csisrls@gmail.com"
+}
+
+#####
+DELETE http://localhost:5050/authors/64ada57c8a378e57192dc5bb
