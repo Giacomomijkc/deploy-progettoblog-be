@@ -102,7 +102,7 @@ comment.post('/comments/create', verifyToken, async (req,res) => {
     }
 })
 
-comment.delete('/comments/:id', async (req,res) => {
+comment.delete('/comments/:id', verifyToken, async (req,res) => {
     const {id} = req.params;
 
     try {
@@ -116,15 +116,23 @@ comment.delete('/comments/:id', async (req,res) => {
             })
         }
 
-        const deleteCommentById = await CommentsModel.findByIdAndDelete(id)
-        //const post = await PostsModel.findById(commentExist.post);
+        const commentAuthorIdString = commentExist.author.toString(); 
 
-        /*if (deleteCommentById.author !== req.user.id || post.author !== req.user.id) {
+        const postIdFromComment = commentExist.post;
+        const post = await PostsModel.findById(postIdFromComment)
+        const postAuthorIdString = post.author.toString();
+        console.log(postAuthorIdString)
+        console.log(req.user._id)
+    
+        
+        if (commentAuthorIdString !== req.user._id && postAuthorIdString !== req.user._id) {
             return res.status(403).send({
-              statusCode: 403,
-              message: "Permission denied"
+                statusCode: 403,
+                message: 'You are not authorized to delete this comment'
             });
-          }*/
+        }
+        await CommentsModel.findByIdAndDelete(id)
+        
 
         res.status(201).send({
             statusCode: 201,
@@ -139,11 +147,12 @@ comment.delete('/comments/:id', async (req,res) => {
     }
 })
 
-comment.patch('/comments/update/:id', async (req, res) => {
+comment.patch('/comments/update/:id', verifyToken, async (req, res) => {
 
     const {id} = req.params;
 
     const commentExist = await CommentsModel.findById(id);
+    console.log(commentExist)
 
     if(!commentExist){
         res.status(404).send({
@@ -152,10 +161,23 @@ comment.patch('/comments/update/:id', async (req, res) => {
         })
     }
 
+
     try {
-        console.log(commentExist)
+
+        const commentAuthorIdString = commentExist.author.toString(); // Trasforma ObjectId in stringa
+        console.log(typeof commentAuthorIdString);
+        console.log(typeof req.user._id);
+
+        if (commentAuthorIdString !== req.user._id) {
+            console.log(typeof commentExist.author)
+            console.log(typeof req.user._id)
+            return res.status(403).send({
+                statusCode: 403,
+                message: 'You are not authorized to delete this comment'
+            });
+        }
+
         const dataToUpdate = req.body;
-        //const dataToUpdate = {content: 'test'}
         const options = {new: true}
         console.log(dataToUpdate)
 

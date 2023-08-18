@@ -4,7 +4,6 @@ const passport = require('passport');
 const session = require('express-session');
 const jwt = require('jsonwebtoken');
 const GithubStrategy = require('passport-github2')
-//const AuthorModel = require('../models/AuthorModel'); // Aggiungi il percorso corretto al tuo AuthorModel
 require('dotenv').config();
 
 github.use(
@@ -44,10 +43,9 @@ github.get('/auth/github', passport.authenticate('github', {scope: ['user: email
 }
 );
 
-github.get('/auth/github/callback', passport.authenticate('github', {failureRedirect: '/'}), (req,res)=> {
+github.get('/auth/github/callback', passport.authenticate('github', {failureRedirect: '/'}), async (req,res)=> {
     const {user} = req
-
-    //await user.save() (istanziare authorModel)
+    console.log(req.user)
 
     const token = jwt.sign(user, process.env.JWT_SECRET)
     const redirectUrl = `http://localhost:3000/success?token=${encodeURIComponent(
