@@ -15,6 +15,29 @@ const crypto = require('crypto');
 
 const author = express.Router()
 
+cloudinary.config({ 
+    cloud_name: 'danz4sj8j', 
+    api_key: '478532613423114', 
+    api_secret: 'g7WJS-Q97F3SMCVAEyUJTd9X2Yk' 
+});
+
+const cloudStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'progettoBlog',
+        format: async (req, file) => {
+            if (file.mimetype === 'image/jpeg') {
+                return 'jpg';
+            } else if (file.mimetype === 'image/png') {
+                return 'png';
+            } else {
+                return 'jpg'; // Default format if not JPG or PNG
+            }
+        },
+        public_id: (req, file) => file.name,
+    },
+})
+
 //come recuperare il nome del file
 const internalStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -30,6 +53,8 @@ const internalStorage = multer.diskStorage({
 // questo è un middleware che va messo nelle rotte dove carichiamo immagini
 const uploads = multer({storage: internalStorage});
 
+const cloudUpload = multer({storage: cloudStorage});
+
 //il contenuto di uploads.single('') dovrà sempre essere uguale al name dell'input
 author.post('/authors/uploadImg', uploads.single('avatar'), async (req, res) =>{
     const url = req.protocol + "://" + req.get("host");
@@ -41,6 +66,15 @@ author.post('/authors/uploadImg', uploads.single('avatar'), async (req, res) =>{
         res.status(500).json({ avatar: "File upload failed" });
     }
 });
+
+author.post('/authors/cloudUpload', cloudUpload.single('avatar'), async (req,res)=> {
+    try {
+        res.status(200).json({avatar: req.file.path})
+    } catch (error) {
+        console.error('File upload failed',error);
+        res.status(500).json({error: 'File upload failed'});
+    }
+})
 
 author.patch('/authors/:authorId/updateImg', uploads.single('avatar'), async (req, res) =>{
     const url = req.protocol + "://" + req.get("host");
@@ -70,6 +104,28 @@ author.patch('/authors/:authorId/updateImg', uploads.single('avatar'), async (re
         res.status(500).json({ error: "Author updating failed" });
     }
 } )
+
+//patch con cloudinary
+author.patch('/authors/:authorId/cloudUpdateImg', cloudUpload.single('avatar'), async (req, res) => {
+    const { authorId } = req.params;
+
+    try {
+        const updatedAvatarUrl = req.file.path; // Utilizza il path fornito da Cloudinary
+        const dataToUpdate = { avatar: updatedAvatarUrl };
+        const options = {new: true}
+        const result = await AuthorsModel.findByIdAndUpdate(authorId, dataToUpdate, options);
+
+        res.status(200).json({ 
+            cover: result.avatar,
+            statusCode: 202,
+            message: `Post with id ${authorId} successfully updated`,
+        });
+            result
+    } catch (error) {
+        console.error('File update failed', error);
+        res.status(500).json({ error: 'File update failed' });
+    }
+});
 
 author.get('/authors/:authorId', async (req, res) => {
     const { authorId } = req.params;

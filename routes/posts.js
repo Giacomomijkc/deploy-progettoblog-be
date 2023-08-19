@@ -19,11 +19,19 @@ cloudinary.config({
     api_secret: 'g7WJS-Q97F3SMCVAEyUJTd9X2Yk' 
   });
 
-const cloudStorage = new CloudinaryStorage({
+  const cloudStorage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'progettoBlog',
-        format: async (req,file) => 'png',
+        format: async (req, file) => {
+            if (file.mimetype === 'image/jpeg') {
+                return 'jpg';
+            } else if (file.mimetype === 'image/png') {
+                return 'png';
+            } else {
+                return 'jpg'; // Default format if not JPG or PNG
+            }
+        },
         public_id: (req, file) => file.name,
     },
 })
@@ -97,6 +105,29 @@ post.patch('/posts/:postId/updateImg', uploads.single('cover'), async (req, res)
       res.status(500).json({ error: "File updating failed" });
     }
   });
+
+// patch immagine con cloudinary
+
+post.patch('/posts/:postId/cloudUpdateImg', cloudUpload.single('cover'), async (req, res) => {
+    const { postId } = req.params;
+
+    try {
+        const updatedCoverUrl = req.file.path; // Utilizza il path fornito da Cloudinary
+        const dataToUpdate = { cover: updatedCoverUrl };
+        const options = {new: true}
+        const result = await PostsModel.findByIdAndUpdate(postId, dataToUpdate, options);
+
+        res.status(200).json({ 
+            cover: result.cover,
+            statusCode: 202,
+            message: `Post with id ${postId} successfully updated`,
+        });
+            result
+    } catch (error) {
+        console.error('File update failed', error);
+        res.status(500).json({ error: 'File update failed' });
+    }
+});
 
 post.get('/posts/:postId', async (req, res) => {
     const {postId} = req.params;
