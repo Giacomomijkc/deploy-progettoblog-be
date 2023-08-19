@@ -14,9 +14,9 @@ const crypto = require('crypto');
 const post = express.Router();
 
 cloudinary.config({ 
-    cloud_name: 'danz4sj8j', 
-    api_key: '478532613423114', 
-    api_secret: 'g7WJS-Q97F3SMCVAEyUJTd9X2Yk' 
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+    api_key: process.env.CLOUDINARY_API_KEY, 
+    api_secret: process.env.CLOUDINARY_API_SECRET 
   });
 
   const cloudStorage = new CloudinaryStorage({
