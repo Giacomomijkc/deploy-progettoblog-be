@@ -173,7 +173,7 @@ comment.patch('/comments/update/:id', verifyToken, async (req, res) => {
             console.log(typeof req.user._id)
             return res.status(403).send({
                 statusCode: 403,
-                message: 'You are not authorized to delete this comment'
+                message: 'You are not authorized to edit this comment'
             });
         }
 
