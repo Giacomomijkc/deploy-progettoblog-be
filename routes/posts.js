@@ -197,27 +197,35 @@ post.get('/posts/title', async (req, res) => {
 })
 
 
-post.get('/posts', async (req,res) => {
-
+post.get('/posts', async (req, res) => {
     try {
-        const posts = await PostsModel.find()
+      const page = parseInt(req.query.page) || 1; // Ottieni il numero di pagina corrente dai parametri della query
+      const limit = 6; // Imposta il numero massimo di post per pagina
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+  
+      const postsCount = await PostsModel.countDocuments(); // Ottieni il numero totale di post
+  
+      const posts = await PostsModel.find()
         .populate("author")
         .populate("comments")
-
-        res.status(200).send({
-            statusCode: 200,
-            posts: posts,
-        });
+        .skip(startIndex)
+        .limit(limit);
+  
+      res.status(200).send({
+        statusCode: 200,
+        posts: posts,
+        totalPosts: postsCount,
+        currentPage: page,
+      });
     } catch (error) {
-        res.status(500).send({
-            statusCode: 500,
-            message:'Internal server Error ',
-            error
-        });
+      res.status(500).send({
+        statusCode: 500,
+        message: 'Errore interno del server',
+        error,
+      });
     }
-
-});
-
+  });
 
 //rimettere validazione
 post.post('/posts/create', verifyToken, async (req, res) => {
