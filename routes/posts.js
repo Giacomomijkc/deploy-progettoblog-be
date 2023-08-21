@@ -29,7 +29,7 @@ cloudinary.config({
             } else if (file.mimetype === 'image/png') {
                 return 'png';
             } else {
-                return 'jpg'; // Default format if not JPG or PNG
+                return 'jpg'; 
             }
         },
         public_id: (req, file) => file.name,
@@ -199,12 +199,12 @@ post.get('/posts/title', async (req, res) => {
 
 post.get('/posts', async (req, res) => {
     try {
-      const page = parseInt(req.query.page) || 1; // Ottieni il numero di pagina corrente dai parametri della query
-      const limit = 6; // Imposta il numero massimo di post per pagina
+      const page = parseInt(req.query.page) || 1; 
+      const limit = 3; 
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
   
-      const postsCount = await PostsModel.countDocuments(); // Ottieni il numero totale di post
+      const postsCount = await PostsModel.countDocuments(); 
   
       const posts = await PostsModel.find()
         .populate("author")
@@ -227,7 +227,7 @@ post.get('/posts', async (req, res) => {
     }
   });
 
-//rimettere validazione
+
 post.post('/posts/create', verifyToken, async (req, res) => {
 
     const author = await AuthorsModel.findOne({_id: req.body.author});
@@ -309,7 +309,6 @@ post.delete('/posts/:postId', verifyToken, async (req, res) => {
     }
 })
 
-//rimettere validazioni
 post.patch('/posts/:postId', verifyToken, async (req, res) => {
     const { postId } = req.params;
 
