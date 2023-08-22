@@ -5,8 +5,8 @@ const bcrypt = require('bcrypt');
 const AuthorsModel = require('../models/authorModel');
 const PostsModel = require('../models/postModel');
 const verifyToken = require('../middlewares/verifyToken');
-//const { authorsBodyParams, validatePostAuthor } = require('../middlewares/authorPostValidation');
-//const {validatePatchBodyAuthors, validatePatchBodyAuthorMiddleware} = require('../middlewares/authorPatchValidations')
+const { authorsBodyParams, validatePostAuthor } = require('../middlewares/authorPostValidation');
+const {validatePatchBodyAuthors, validatePatchBodyAuthorMiddleware} = require('../middlewares/authorPatchValidations')
 
 const multer = require('multer');
 const cloudinary = require ('cloudinary').v2;
@@ -196,8 +196,8 @@ author.get('/authors', async (req, res)  =>{
     }
 });
 
-//rimettere validazioni
-author.post('/authors/create', async (req, res) => {
+
+author.post('/authors/create', validatePostAuthor, async (req, res) => {
 
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -228,8 +228,8 @@ author.post('/authors/create', async (req, res) => {
     }
 })
 
-//rimettere validazioni
-author.patch('/authors/:authorId', verifyToken, async (req, res) => {
+
+author.patch('/authors/:authorId', validatePatchBodyAuthorMiddleware, verifyToken, async (req, res) => {
     const { authorId } = req.params;
 
     const authorExist = await AuthorsModel.findById(authorId);

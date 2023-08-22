@@ -20,7 +20,7 @@ const authorsBodyParams = [
 
     body('dateOfBirth')
         .notEmpty()
-        .isString()
+        .isDate()
         .withMessage('Data di nascita is required and must be written DD/MM/YYYY'),
 
     body('avatar')

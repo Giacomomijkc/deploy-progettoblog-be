@@ -4,8 +4,8 @@ const express = require('express');
 const PostsModel = require('../models/postModel');
 const AuthorsModel = require('../models/authorModel');
 const verifyToken = require('../middlewares/verifyToken');
-//const { postsBodyParams, validatePostBody } = require('../middlewares/postPostValidation');
-//const { validatePatchBody, validatePatchBodyMiddleware } = require('../middlewares/postPatchValidation');
+const { postsBodyParams, validatePostBody } = require('../middlewares/postPostValidation');
+const { validatePatchBody, validatePatchBodyMiddleware } = require('../middlewares/postPatchValidation');
 const multer = require('multer');
 const cloudinary = require ('cloudinary').v2;
 const {CloudinaryStorage} = require('multer-storage-cloudinary');
@@ -228,7 +228,7 @@ post.get('/posts', async (req, res) => {
   });
 
 
-post.post('/posts/create', verifyToken, async (req, res) => {
+post.post('/posts/create', validatePostBody, verifyToken, async (req, res) => {
 
     const author = await AuthorsModel.findOne({_id: req.body.author});
 
@@ -309,7 +309,7 @@ post.delete('/posts/:postId', verifyToken, async (req, res) => {
     }
 })
 
-post.patch('/posts/:postId', verifyToken, async (req, res) => {
+post.patch('/posts/:postId', validatePatchBodyMiddleware, verifyToken, async (req, res) => {
     const { postId } = req.params;
 
     const postExist = await PostsModel.findById(postId);
